@@ -17,6 +17,7 @@ package cpuid
 import (
 	"os"
 	"regexp"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -39,10 +40,17 @@ func TestHostFeatureFlags(t *testing.T) {
 	// Extract all cpuinfo flags.
 	cpuinfoBytes, _ := os.ReadFile("/proc/cpuinfo")
 	cpuinfo := string(cpuinfoBytes)
-	re := regexp.MustCompile(`(?m)^flags\s+: (.*)$`)
+	key := ""
+	switch runtime.GOARCH {
+	case "amd64":
+		key = "flags"
+	case "arm64", "loong64":
+		key = "Features"
+	}
+	re := regexp.MustCompile("(?m)^" + key + "\\s+: (.*)$")
 	m := re.FindStringSubmatch(cpuinfo)
 	if len(m) != 2 {
-		t.Fatalf("Unable to extract flags from %q", cpuinfo)
+		t.Fatalf("Unable to extract Features from %q", cpuinfo)
 	}
 	cpuinfoFlags := make(map[string]struct{})
 	for _, f := range strings.Split(m[1], " ") {
