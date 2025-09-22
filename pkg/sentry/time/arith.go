@@ -9,6 +9,9 @@
 // The code is derived from Go's generic math/big.divWW_g
 // (src/math/big/arith.go), but is only used on ARM64.
 
+//go:build arm64 || loong64
+// +build arm64 loong64
+
 package time
 
 import "math/bits"
